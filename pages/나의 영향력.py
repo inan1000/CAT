@@ -20,7 +20,7 @@ def calculate_impact_summary(activity_log):
 
 # 환경 기여도 확인 페이지
 def environmental_contribution_page():
-    st.title("🌱 환경 기여도 확인")
+    st.markdown("<h1 style='text-align: center; color: green;'>🌱 환경 기여도 확인</h1>", unsafe_allow_html=True)
 
     # 사용자 활동 목록 테이블 표시
     st.subheader("활동 목록")
@@ -33,14 +33,35 @@ def environmental_contribution_page():
     # 기여도 요약 표시
     st.subheader("환경 기여도 요약")
     st.markdown(f"""
-    - 총 획득 포인트: **{total_points} P**
-    - 총 CO2 절감량: **{co2_reduction} kg**
-    - 총 쓰레기 감소량: **{waste_reduction} kg**
-    """)
-    
-    # 시각적 효과
-    progress_value = min(total_points / 100, 1.0)  # 최대값을 1로 제한
-    st.progress(progress_value)
+    <div style="font-size: 20px;">
+        - 총 획득 포인트: <strong>{total_points} P</strong><br>
+        - 총 CO2 절감량: <strong>{co2_reduction} kg</strong><br>
+        - 총 쓰레기 감소량: <strong>{waste_reduction} kg</strong>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 영향력 시각화
+    st.markdown("<h2 style='color: #2c8c2c;'>🌍 환경 보호 성과</h2>", unsafe_allow_html=True)
+    st.write("당신의 환경 보호 활동이 실제로 지구에 미친 영향을 확인해보세요:")
+
+    # 다양한 환경 기여 대상 시각화
+    birds_saved = co2_reduction // 2
+    trees_saved = waste_reduction // 5
+    fish_saved = co2_reduction // 3  # 예: CO2 절감량에 비례한 물고기 절감 효과
+    mountains_saved = waste_reduction // 10  # 예: 쓰레기 감소에 비례한 산 보호 효과
+
+    # 환경 기여도 텍스트와 아이콘 표시
+    st.markdown(f"<div style='font-size: 18px; color: blue;'>🐦 {birds_saved}마리의 새를 보호했어요!</div>", unsafe_allow_html=True)
+    st.markdown("🕊️" * birds_saved)
+
+    st.markdown(f"<div style='font-size: 18px; color: green;'>🌳 {trees_saved}그루의 나무를 보호했어요!</div>", unsafe_allow_html=True)
+    st.markdown("🌲" * trees_saved)
+
+    st.markdown(f"<div style='font-size: 18px; color: darkblue;'>🐟 {fish_saved}마리의 물고기를 보호했어요!</div>", unsafe_allow_html=True)
+    st.markdown("🐟" * fish_saved)
+
+    st.markdown(f"<div style='font-size: 18px; color: brown;'>🏔️ {mountains_saved}개의 산을 보호했어요!</div>", unsafe_allow_html=True)
+    st.markdown("🏔️" * mountains_saved)
 
 # 메인 앱
 def main():
