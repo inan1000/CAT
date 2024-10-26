@@ -4,9 +4,7 @@ from streamlit_folium import folium_static
 import random
 import sqlite3
 import pandas as pd
-from datetime import datetime
 import time
-from geopy.geocoders import Nominatim
 
 # 데이터베이스 초기화
 def init_db():
@@ -15,12 +13,12 @@ def init_db():
     
     # 사용자 테이블 생성
     c.execute('''CREATE TABLE IF NOT EXISTS users
-                 (id INTEGER PRIMARY KEY, username TEXT, points INTEGER)''')
+                (id INTEGER PRIMARY KEY, username TEXT, points INTEGER)''')
     
     # 미션 히스토리 테이블 생성
     c.execute('''CREATE TABLE IF NOT EXISTS mission_history
-                 (id INTEGER PRIMARY KEY, user_id INTEGER, mission TEXT, 
-                  points INTEGER, completion_date TEXT)''')
+                (id INTEGER PRIMARY KEY, user_id INTEGER, mission TEXT, 
+                points INTEGER, completion_date TEXT)''')
     
     conn.commit()
     conn.close()
@@ -203,32 +201,27 @@ def mission_page():
             )
             st.success(f"🎉 오늘의 미션이 선택되었습니다! 🎉")
 
-    # 미션 완료 버튼과 카메라 입력
+    # 현재 미션과 카메라 입력
     if st.session_state.current_mission:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col2:
-            if st.button("미션 완료", key="complete_mission"):
-                st.write("카메라를 켜고 사진을 찍어주세요.")
-                
-                # 카메라 입력 기능 추가
-                img_data = st.camera_input("미션 완료를 위해 사진을 찍어주세요.")
+        st.markdown(f"현재 미션: {st.session_state.current_mission['mission']} ({st.session_state.current_mission['points']} 포인트)")
+        
+        # 카메라 입력 기능 추가
+        img_data = st.camera_input("미션 완료를 위해 사진을 찍어주세요.")
 
-                if img_data:
-                    # 포인트 적립
-                    st.session_state.points += st.session_state.current_mission["points"]
-                    
-                    # 미션 히스토리 추가
-                    st.session_state.mission_history.append({
-                        'date': time.strftime('%Y-%m-%d'),
-                        'mission': st.session_state.current_mission["mission"],
-                        'points': st.session_state.current_mission["points"]
-                    })
-                    
-                    st.success(f"🎊 축하합니다! {st.session_state.current_mission['points']} 포인트가 적립되었습니다!")
-                    st.session_state.current_mission = None
-                    st.session_state.mission_running = False
-                else:
-                    st.warning("사진을 찍어야 포인트가 지급됩니다. 다시 시도해주세요.")
+        if img_data:
+            # 포인트 적립
+            st.session_state.points += st.session_state.current_mission["points"]
+            
+            # 미션 히스토리 추가
+            st.session_state.mission_history.append({
+                'date': time.strftime('%Y-%m-%d'),
+                'mission': st.session_state.current_mission["mission"],
+                'points': st.session_state.current_mission["points"]
+            })
+            
+            st.success(f"🎊 축하합니다! {st.session_state.current_mission['points']} 포인트가 적립되었습니다!")
+            st.session_state.current_mission = None
+            st.session_state.mission_running = False
 
     # 현재 포인트 표시
     st.markdown(f"""
@@ -245,46 +238,35 @@ def profile_page():
     # 프로필 정보
     st.markdown(f"""
     <div style='padding: 20px; background-color: #f8f9fa; border-radius: 10px; margin-bottom: 20px;'>
-        <h3>사용자: {st.session_state.username}</h3>
-        <h2 style='color: #0083B8;'>보유 포인트: {st.session_state.points} P</h2>
+        <h3>이름: {st.session_state.username}</h3>
+        <h3>포인트: {st.session_state.points} P</h3>
     </div>
     """, unsafe_allow_html=True)
     
     # 미션 히스토리
-    st.subheader("미션 히스토리")
+    st.markdown("<h3>미션 히스토리</h3>")
+    
     if st.session_state.mission_history:
-        df = pd.DataFrame(st.session_state.mission_history)
-        st.table(df)
+        history_df = pd.DataFrame(st.session_state.mission_history)
+        st.table(history_df)
     else:
-        st.info("아직 완료한 미션이 없습니다.")
+        st.write("미션 히스토리가 없습니다.")
 
 # 메인 앱
 def main():
-    st.set_page_config(
-        page_title="환경보호 미션",
-        layout="wide",
-        initial_sidebar_state="expanded"
-    )
-    
-    # 초기화
     init_db()
     init_session_state()
     load_css()
     
-    # 사이드바 네비게이션
-    st.sidebar.title("메뉴")
-    page = st.sidebar.radio(
-        "페이지 선택",
-        ["메인", "미션", "프로필"],
-        format_func=lambda x: f"📍 {x}"
-    )
-
-    # 페이지에 따라 해당 함수 호출
-    if page == "메인":
+    # 페이지 선택
+    page_options = ["메인", "미션", "프로필"]
+    selected_page = st.sidebar.selectbox("페이지 선택", page_options)
+    
+    if selected_page == "메인":
         main_page()
-    elif page == "미션":
+    elif selected_page == "미션":
         mission_page()
-    elif page == "프로필":
+    elif selected_page == "프로필":
         profile_page()
 
 if __name__ == "__main__":
