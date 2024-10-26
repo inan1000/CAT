@@ -214,7 +214,7 @@ def get_rank_data():
 
 # 지도 표시 함수
 def show_map():
-    m = folium.Map(location=[37.5665, 126.9780], zoom_start=13)
+    m = folium.Map(location=[35.14660368215754, 126.83986037858803], zoom_start=15)
     folium_static(m)
 
 # 미션 페이지
