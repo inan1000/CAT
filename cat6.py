@@ -19,9 +19,47 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS mission_history
                 (id INTEGER PRIMARY KEY, user_id INTEGER, mission TEXT, 
                 points INTEGER, completion_date TEXT)''')
+
+    # 샘플 데이터 추가 (데이터가 없을 경우에만 추가)
+    c.execute("SELECT COUNT(*) FROM users")
+    count = c.fetchone()[0]
+    
+    if count == 0:  # 사용자 데이터가 없을 경우에만 샘플 데이터 추가
+        sample_users = [
+            ("박헌주", 150),
+            ("김이안", 120),
+            ("백승우", 90),
+            ("강윤찬", 200),
+            ("최현준", 180)
+        ]
+        
+        for username, points in sample_users:
+            c.execute("INSERT INTO users (username, points) VALUES (?, ?)", (username, points))
+
+    conn.commit()
+    conn.close()
+
+# 사용자 포인트 업데이트 (수정된 부분)
+def update_user_points(username, points):
+    conn = sqlite3.connect('eco_missions.db')
+    c = conn.cursor()
+    
+    # 사용자 정보 가져오기
+    c.execute("SELECT id, points FROM users WHERE username=?", (username,))
+    user = c.fetchone()
+    
+    if user:
+        # 포인트 업데이트
+        user_id = user[0]
+        new_points = user[1] + points
+        c.execute("UPDATE users SET points=? WHERE id=?", (new_points, user_id))
+    else:
+        # 새 사용자 추가 (포인트 초기화)
+        c.execute("INSERT INTO users (username, points) VALUES (?, ?)", (username, points))
     
     conn.commit()
     conn.close()
+
 
 # 세션 상태 초기화
 def init_session_state():
@@ -120,7 +158,7 @@ def main_page():
     col1, col2 = st.columns(2)
     
     with col1:
-        # 포인트 카드
+# 포인트 카드
         st.markdown(f"""
         <div class="main-card points-card">
             <h3>나의 포인트</h3>
@@ -129,13 +167,21 @@ def main_page():
         """, unsafe_allow_html=True)
         
         # 순위 카드
-        st.markdown("""
-        <div class="main-card rank-card">
+        st.markdown("""<div class="main-card rank-card">
             <h3>순위</h3>
-            <p>상위 10%</p>
-        </div>
+            <div style="max-height: 200px; overflow-y: auto;">
         """, unsafe_allow_html=True)
-    
+        
+        # 순위 데이터 표시
+        rank_data = get_rank_data()
+        df = pd.DataFrame(rank_data)
+        df.index = [f"{i+1}등" for i in range(len(df))]
+        
+        # 순위 데이터를 HTML 테이블로 변환
+        st.markdown(df.to_html(escape=False, index=True), unsafe_allow_html=True)
+        
+        st.markdown("</div></div>", unsafe_allow_html=True)  # 카드 닫기
+
     with col2:
         # 지도 카드
         st.markdown("""
@@ -152,6 +198,19 @@ def main_page():
             <p>클릭하여 상세 정보 확인</p>
         </div>
         """, unsafe_allow_html=True)
+
+# 사용자 순위 데이터 가져오기
+def get_rank_data():
+    conn = sqlite3.connect('eco_missions.db')
+    c = conn.cursor()
+    c.execute("SELECT username, points FROM users ORDER BY points DESC")
+    rank_data = c.fetchall()
+    conn.close()
+    
+    # 데이터프레임 생성 및 컬럼 이름 설정
+    df = pd.DataFrame(rank_data, columns=["이름", "포인트"])
+    return df
+
 
 # 지도 표시 함수
 def show_map():
@@ -211,6 +270,7 @@ def mission_page():
         if img_data:
             # 포인트 적립
             st.session_state.points += st.session_state.current_mission["points"]
+            update_user_points(st.session_state.username, st.session_state.current_mission["points"])  # 데이터베이스 업데이트
             
             # 미션 히스토리 추가
             st.session_state.mission_history.append({
@@ -230,6 +290,14 @@ def mission_page():
             <h2 style='color: #0083B8;'>{st.session_state.points} P</h2>
         </div>
     """, unsafe_allow_html=True)
+
+    # 순위 업데이트
+    if st.session_state.points > 0:
+        rank_data = get_rank_data()  # 순위 데이터를 새로 가져옵니다.
+        df = pd.DataFrame(rank_data)
+        df.index = [f"{i+1}등" for i in range(len(df))]
+        st.markdown("<h3>현재 순위</h3>", unsafe_allow_html=True)
+        st.markdown(df.to_html(escape=False, index=True), unsafe_allow_html=True)
 
 # 프로필 페이지
 def profile_page():
