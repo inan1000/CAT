@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import folium
 from streamlit_folium import folium_static
@@ -38,6 +37,8 @@ def init_session_state():
         st.session_state.mission_running = False
     if 'current_mission' not in st.session_state:
         st.session_state.current_mission = None
+    if 'page' not in st.session_state:
+        st.session_state.page = "메인"  # 기본 페이지를 메인으로 설정
 
 # 글로벌 CSS 스타일
 def load_css():
@@ -89,26 +90,30 @@ def load_css():
         padding: 20px;
         border-radius: 10px;
         margin: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.15);
         transition: transform 0.3s;
     }
     .main-card:hover {
         transform: translateY(-5px);
     }
     .points-card {
-        background-color: #f0f8ff;
+        background-color: #e0f7fa;
     }
     .rank-card {
-        background-color: #f0fff0;
+        background-color: #e8f5e9;
     }
     .map-card {
-        background-color: #fff0f5;
+        background-color: #fce4ec;
     }
     .profile-card {
-        background-color: #fff8dc;
+        background-color: #fff9c4;
     }
     </style>
     """, unsafe_allow_html=True)
+
+# 페이지 변경 함수
+def change_page(page_name):
+    st.session_state.page = page_name
 
 # 메인 페이지
 def main_page():
@@ -198,27 +203,32 @@ def mission_page():
             )
             st.success(f"🎉 오늘의 미션이 선택되었습니다! 🎉")
 
-    # 미션 완료 버튼
+    # 미션 완료 버튼과 카메라 입력
     if st.session_state.current_mission:
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             if st.button("미션 완료", key="complete_mission"):
-                # 포인트 적립
-                st.session_state.points += st.session_state.current_mission["points"]
+                st.write("카메라를 켜고 사진을 찍어주세요.")
                 
-                # 미션 히스토리 추가
-                st.session_state.mission_history.append({
-                    'date': time.strftime('%Y-%m-%d'),
-                    'mission': st.session_state.current_mission["mission"],
-                    'points': st.session_state.current_mission["points"]
-                })
-                
-                st.success(f"🎊 축하합니다! {st.session_state.current_mission['points']} 포인트가 적립되었습니다!")
-                st.session_state.current_mission = None
-                st.session_state.mission_running = False
-                
-                time.sleep(2)
-                st.experimental_rerun()
+                # 카메라 입력 기능 추가
+                img_data = st.camera_input("미션 완료를 위해 사진을 찍어주세요.")
+
+                if img_data:
+                    # 포인트 적립
+                    st.session_state.points += st.session_state.current_mission["points"]
+                    
+                    # 미션 히스토리 추가
+                    st.session_state.mission_history.append({
+                        'date': time.strftime('%Y-%m-%d'),
+                        'mission': st.session_state.current_mission["mission"],
+                        'points': st.session_state.current_mission["points"]
+                    })
+                    
+                    st.success(f"🎊 축하합니다! {st.session_state.current_mission['points']} 포인트가 적립되었습니다!")
+                    st.session_state.current_mission = None
+                    st.session_state.mission_running = False
+                else:
+                    st.warning("사진을 찍어야 포인트가 지급됩니다. 다시 시도해주세요.")
 
     # 현재 포인트 표시
     st.markdown(f"""
@@ -268,8 +278,8 @@ def main():
         ["메인", "미션", "프로필"],
         format_func=lambda x: f"📍 {x}"
     )
-    
-    # 페이지 라우팅
+
+    # 페이지에 따라 해당 함수 호출
     if page == "메인":
         main_page()
     elif page == "미션":
@@ -278,4 +288,4 @@ def main():
         profile_page()
 
 if __name__ == "__main__":
-    main() 
+    main()
