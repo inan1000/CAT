@@ -75,4 +75,4 @@ st.dataframe(df)
 selected_destination = st.selectbox("목적지를 선택하세요:", df["목적지"].tolist())
 
 selected_time = df.loc[df["목적지"] == selected_destination, "걸리는 시간 (분)"].values[0]
-st.write(f"선택한 목적지: **{selected_destination}** - 걸리는 시간: **{selected_time}**분")
+st.write(f"선택한 목적지: **{selected_destination}** - 걸리는 시간: **{selected_time}** 분")
