@@ -56,8 +56,23 @@ location_component = """
 components.html(location_component, height=700)  # iframe 높이에 맞게 설정
 
 # 위치 정보를 Streamlit에서 받기 위한 메시지 처리
-location_data = st.experimental_get_query_params()  # Streamlit에서 쿼리 파라미터 가져오기
+location_data = st.query_params  # Streamlit에서 쿼리 파라미터 가져오기
 if "latitude" in location_data and "longitude" in location_data:
     lat = float(location_data["latitude"][0])
     lon = float(location_data["longitude"][0])
     st.write(f"위도: {lat}, 경도: {lon}")
+
+data = {
+    "목적지": ["김대중컨벤션센터역", "광주공항", "상무포차"],
+    "걸리는 시간 (분)": ["5분(360M)", "56분(3.5km)", "33분(1.9km)"]
+}
+
+import pandas as pd
+
+df = pd.DataFrame(data)
+st.dataframe(df)
+
+selected_destination = st.selectbox("목적지를 선택하세요:", df["목적지"].tolist())
+
+selected_time = df.loc[df["목적지"] == selected_destination, "걸리는 시간 (분)"].values[0]
+st.write(f"선택한 목적지: {selected_destination} - 걸리는 시간: {selected_time}분")
