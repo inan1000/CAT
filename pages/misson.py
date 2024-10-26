@@ -21,7 +21,12 @@ def mission_roulette():
     for _ in range(20):
         selected_mission = random.choice(missions)
         result_box.markdown(
-            f'<div style="text-align: center; font-size: 36px; color: #007BFF; border: 5px solid #007BFF; border-radius: 10px; padding: 30px; width: 250px; margin: auto; background-color: #E7F3FF;">{selected_mission["mission"]}<br><span style="font-size: 24px;">({selected_mission["points"]} 포인트)</span></div>',
+            f'''
+            <div style="text-align: center; font-size: 36px; color: #007BFF; border: 5px solid #007BFF; border-radius: 10px; padding: 30px; width: auto; margin: auto; background-color: #E7F3FF;">
+                {selected_mission["mission"]}<br>
+                <span style="font-size: 24px;">({selected_mission["points"]} 포인트)</span>
+            </div>
+            ''',
             unsafe_allow_html=True
         )
         time.sleep(0.1)
@@ -29,7 +34,12 @@ def mission_roulette():
     # 최종 미션 선택
     final_mission = random.choice(missions)
     result_box.markdown(
-        f'<div style="text-align: center; font-size: 48px; color: green; font-weight: bold; border: 5px solid green; border-radius: 10px; padding: 30px; width: 250px; margin: auto; background-color: #E7F9E7;">🎉 {final_mission["mission"]} 🎉<br><span style="font-size: 24px;">({final_mission["points"]} 포인트)</span></div>',
+        f'''
+        <div style="text-align: center; font-size: 48px; color: green; font-weight: bold; border: 5px solid green; border-radius: 10px; padding: 30px; width: auto; margin: auto; background-color: #E7F9E7;">
+            🎉 {final_mission["mission"]} 🎉<br>
+            <span style="font-size: 24px;">({final_mission["points"]} 포인트)</span>
+        </div>
+        ''',
         unsafe_allow_html=True
     )
     return final_mission
