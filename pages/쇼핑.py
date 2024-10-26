@@ -2,10 +2,10 @@ import streamlit as st
 
 # 아이템 데이터: 이름, 이미지 URL, 가격
 items = [
-    {"name": "사과", "image": "https://via.placeholder.com/150?text=Apple", "price": 30},
-    {"name": "바나나", "image": "https://via.placeholder.com/150?text=Banana", "price": 20},
-    {"name": "주스", "image": "https://via.placeholder.com/150?text=Juice", "price": 50},
-    {"name": "샌드위치", "image": "https://via.placeholder.com/150?text=Sandwich", "price": 40},
+    {"name": "사과", "image": "https://cdn.pixabay.com/photo/2019/02/04/06/46/apple-3974057_1280.jpg", "price": 30},
+    {"name": "바나나", "image": "https://cdn.pixabay.com/photo/2017/06/27/22/21/banana-2449019_1280.jpg", "price": 20},
+    {"name": "과일 주스", "image": "https://cdn.pixabay.com/photo/2017/04/23/09/44/smoothies-2253423_1280.jpg", "price": 50},
+    {"name": "샌드위치", "image": "https://cdn.pixabay.com/photo/2017/03/10/13/49/fast-food-2132863_1280.jpg", "price": 40},
 ]
 
 # 구매 페이지
