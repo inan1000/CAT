@@ -1,3 +1,3 @@
 print("hello world")
 
-# streamlit run cat6.py 
+# streamlit run "메인 화면.py"
