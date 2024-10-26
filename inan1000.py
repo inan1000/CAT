@@ -1,3 +1,3 @@
 print("hello world")
 
-# streamlit run app.py 
+# streamlit run cat6.py 
